@@ -1,4 +1,6 @@
-﻿
+﻿// SPDX-FileCopyrightText: 2023 Admer Šuko
+// SPDX-License-Identifier: MIT
+
 using System.Text;
 using ENetConnection = Godot.ENetConnection;
 
