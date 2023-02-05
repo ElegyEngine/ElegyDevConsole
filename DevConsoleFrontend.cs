@@ -108,25 +108,23 @@ namespace Elegy.DevConsole
 		public void Shutdown()
 		{
 			Console.Log( $"[DevConsole] Shutdown" );
-
-			mPeerMap.Clear();
+			Initialised = false;
 
 			mConnection.Broadcast( 0, new byte[] { (byte)'X' }, (int)Godot.ENetPacketPeer.FlagReliable );
-			mConnection.Service();
+			for ( int i = 0; i < 64; i++ )
+			{
+				LogEvent( mConnection.Service( 1 ) );
+			}
 
 			var peers = mConnection.GetPeers();
 			foreach ( var peer in peers )
 			{
-				peer.PeerDisconnect();
+				peer.PeerDisconnectNow();
 			}
-			for ( int i = 0; i < 50; i++ )
-			{
-				LogEvent( mConnection.Service() );
-			}
+			mConnection.Service();
 
-			mConnection.Destroy();
-
-			Initialised = false;
+			mPeerMap.Clear();
+			//mConnection.Destroy();
 		}
 
 		private Dictionary<Godot.ENetPacketPeer, string> mPeerMap = new();
