@@ -49,15 +49,14 @@ namespace Elegy.DevConsole
 
 		private byte[] EncodeMessage( string message, ConsoleMessageType type )
 		{
-			// 1 byte for the network message type
-			// 1 byte for the console message type
-			// 2 bytes for the console message length
-			// X bytes for the text
-			List<byte> data = new( 1 + 1 + 2 + message.Length );
-			data.Add( (byte)'M' );
-			data.Add( (byte)type );
-			data.Add( (byte)message.Length ); // we encode the 1st byte here
-			data.Add( (byte)(message.Length >> 8) ); // and the 2nd byte here, making a short
+			List<byte> data = new( 1 + 1 + 2 + message.Length )
+			{
+				// (M -> message, X -> termination, Q -> query etc.)
+				(byte)'M',					// 1 byte for the packet type
+				(byte)type,					// 1 byte for the console message type
+				(byte)message.Length,		// 2 bytes for the length of the message
+				(byte)(message.Length >> 8)	// N bytes for the actual text
+			};
 			data.AddRange( Encoding.ASCII.GetBytes( message ) );
 
 			return data.ToArray();
