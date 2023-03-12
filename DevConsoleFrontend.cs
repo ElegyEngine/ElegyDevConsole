@@ -142,6 +142,20 @@ namespace Elegy.DevConsole
 			return buffer.Data.ToArray();
 		}
 
+		private void Service( int timeoutMs = 0 )
+		{
+			while ( true )
+			{
+				var result = mConnection.Service( timeoutMs );
+				if ( result[0].AsInt32() <= (int)ENetConnection.EventType.None )
+				{
+					break;
+				}
+
+				LogEvent( result );
+			}
+		}
+
 		private void ConnectionThread( object? obj )
 		{
 			bool keepRunning = true;
@@ -170,39 +184,23 @@ namespace Elegy.DevConsole
 								mThreadData.IsTransmittingMessages = false;
 							}
 
-							while ( true )
-							{
-								var result = mConnection.Service();
-								if ( result[0].AsInt32() <= (int)ENetConnection.EventType.None )
-								{
-									break;
-								}
-								
-								LogEvent( result );
-							}
+							Service();
 
 							Thread.Sleep( 100 );
 						} break;
 
 					case ThreadData.ConnectionMode.ShuttingDown:
 						{
-							mConnection.Broadcast( 0, new byte[] { (byte)'X' }, (int)Godot.ENetPacketPeer.FlagReliable );
-							for ( int i = 0; i < 64; i++ )
-							{
-								LogEvent( mConnection.Service( 1 ) );
-							}
-
-							Thread.Sleep( 50 );
-
+							// Flush any previous messages
+							Service( 50 );
+							
 							var peers = mConnection.GetPeers();
 							foreach ( var peer in peers )
 							{
 								peer.PeerDisconnectNow();
 							}
-							for ( int i = 0; i < 64; i++ )
-							{
-								LogEvent( mConnection.Service( 1 ) );
-							}
+							// Give clients time to disconnect
+							Service( 15 );
 
 							mPeerMap.Clear();
 
@@ -219,10 +217,15 @@ namespace Elegy.DevConsole
 
 			// Force send all messages
 			// Very crude way of doing it, but it works
-			for ( int i = 0; i < 15; i++ )
+			for ( int i = 0; i < 64; i++ )
 			{
 				OnUpdate( 10.0f );
 				Thread.Sleep( 10 );
+
+				if ( mThreadData.MessageQueue.Count == 0 )
+				{
+					break;
+				}
 			}
 
 			mThreadData.Mode = ThreadData.ConnectionMode.ShuttingDown;
