@@ -46,6 +46,8 @@ namespace Elegy.DevConsole
 
 		public bool Initialised { get; set; } = false;
 
+		public const string Tag = "DevConsole";
+
 		public DevConsoleFrontend()
 		{
 			mConnectionThread = new Thread( ConnectionThread );
@@ -63,7 +65,7 @@ namespace Elegy.DevConsole
 				return false;
 			}
 
-			Console.Log( "[DevConsole] Bridge has been established!", ConsoleMessageType.Developer );
+			Console.Log( Tag, "Bridge has been established!", ConsoleMessageType.Developer );
 
 			mThreadData.Mode = ThreadData.ConnectionMode.Active;
 
@@ -116,11 +118,11 @@ namespace Elegy.DevConsole
 			{
 				string peerString = $"'{peer.GetRemoteAddress()}:{peer.GetRemotePort()}'";
 				mPeerMap[peer] = peerString;
-				Console.Log( $"[DevConsole] Connection established! (from {peerString})", ConsoleMessageType.Developer );
+				Console.Log( Tag, $"Connection established! (from {peerString})", ConsoleMessageType.Developer );
 			}
 			else if ( eventType == ENetConnection.EventType.Disconnect )
 			{
-				Console.Log( $"[DevConsole] Connection terminated (with {mPeerMap[peer]})", ConsoleMessageType.Developer );
+				Console.Log( Tag, $"Connection terminated (with {mPeerMap[peer]})", ConsoleMessageType.Developer );
 				mPeerMap.Remove( peer );
 			}
 		}
@@ -212,7 +214,7 @@ namespace Elegy.DevConsole
 
 		public void Shutdown()
 		{
-			Console.Log( $"[DevConsole] Shutdown" );
+			Console.Log( Tag, "Shutdown" );
 			Initialised = false;
 
 			// Force send all messages
