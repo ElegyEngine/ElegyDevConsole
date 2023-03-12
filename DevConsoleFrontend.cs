@@ -125,13 +125,15 @@ namespace Elegy.DevConsole
 			}
 		}
 
-		private static byte[] EncodeMessage( string message, ConsoleMessageType type )
+		private static byte[] EncodeMessage( string message, float time, ConsoleMessageType type )
 		{
-			ByteBuffer buffer = new( 1 + 1 + 2 + message.Length );
+			ByteBuffer buffer = new( 1 + 1 + 4 + 2 + message.Length );
 			// 1 byte for the packet type
 			buffer.WriteChar( 'M' );
 			// 1 byte for the console message type
-			buffer.Write( type );
+			buffer.WriteEnum( type );
+			// 4 bytes for the submission time
+			buffer.WriteF32( time );
 			// 2 + N bytes for string length and string contents
 			buffer.WriteStringAscii( message, StringLength.Medium );
 
@@ -159,7 +161,7 @@ namespace Elegy.DevConsole
 								for ( int i = 0; i < mThreadData.MessageQueue.Count; i++ )
 								{
 									ConsoleMessage message = mThreadData.MessageQueue[i];
-									mConnection.Broadcast( 0, EncodeMessage( message.Message, message.Type ), (int)Godot.ENetPacketPeer.FlagReliable );
+									mConnection.Broadcast( 0, EncodeMessage( message.Message, message.TimeSubmitted, message.Type ), (int)Godot.ENetPacketPeer.FlagReliable );
 								}
 								mThreadData.MessageQueue.Clear();
 
