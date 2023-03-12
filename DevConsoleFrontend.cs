@@ -95,7 +95,7 @@ namespace Elegy.DevConsole
 			mMessagesToAdd.Clear();
 			mThreadData.CanTransmitMessages = true;
 
-			mTimeToNextTransmission = 0.5f;
+			mTimeToNextTransmission = 0.1f;
 		}
 
 		private void LogEvent( Godot.Collections.Array? serviceResult )
