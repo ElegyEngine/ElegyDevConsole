@@ -190,12 +190,17 @@ namespace Elegy.DevConsole
 								LogEvent( mConnection.Service( 1 ) );
 							}
 
+							Thread.Sleep( 50 );
+
 							var peers = mConnection.GetPeers();
 							foreach ( var peer in peers )
 							{
 								peer.PeerDisconnectNow();
 							}
-							mConnection.Service();
+							for ( int i = 0; i < 64; i++ )
+							{
+								LogEvent( mConnection.Service( 1 ) );
+							}
 
 							mPeerMap.Clear();
 
@@ -209,6 +214,14 @@ namespace Elegy.DevConsole
 		{
 			Console.Log( $"[DevConsole] Shutdown" );
 			Initialised = false;
+
+			// Force send all messages
+			// Very crude way of doing it, but it works
+			for ( int i = 0; i < 15; i++ )
+			{
+				OnUpdate( 10.0f );
+				Thread.Sleep( 10 );
+			}
 
 			mThreadData.Mode = ThreadData.ConnectionMode.ShuttingDown;
 			mConnectionThread.Join();
