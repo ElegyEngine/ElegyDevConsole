@@ -1,6 +1,10 @@
 
 # DevConsole bridge plugin
 
+### *Note: moved to a unified repository at [Elegy.Engine](https://github.com/ElegyEngine/ElegyEngine)*
+
+----------
+
 This is a plugin for Elegy which essentially maintains connections with external developer consoles/terminals.
 
 An example external console is [DevConsoleApp](https://github.com/ElegyEngine/ElegyDevConsoleApp).
